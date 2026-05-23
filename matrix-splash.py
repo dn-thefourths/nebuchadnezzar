@@ -4,12 +4,11 @@ Nebuchadnezzar terminal splash
 Rain → "Welcome to the Nebuchadnezzar" full-width banner → green prompt flash
 
 Security notes:
-  - stdlib only: curses, random, time, sys, subprocess, platform
-  - no network, no pip installs, no file I/O, no eval/exec
-  - subprocess used only to call 'say' (macOS TTS) with a hardcoded string
+  - stdlib only: curses, random, time, sys
+  - no network, no pip installs, no file I/O, no eval/exec, no subprocess
   - runs as current user; file is 644 under a 750 home directory
 """
-import curses, random, time, sys, subprocess, platform
+import curses, random, time, sys
 
 CHARS = (
     "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ"
@@ -270,17 +269,7 @@ def main(stdscr):
         (border,  row + 1, 1),
     ]
 
-    def voice():
-        """Fire Samantha TTS non-blocking when the banner hold phase begins."""
-        if platform.system() == "Darwin":
-            subprocess.Popen(
-                ["say", "-v", "Samantha", "Welcome, Chosen One"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-
-    # hold=2.5s — voice (~2s) finishes cleanly before typewriter begins
-    if phase_decode(stdscr, rain, C, specs, 0.012, 0.35, 2.5, on_hold_start=voice): return
+    if phase_decode(stdscr, rain, C, specs, 0.012, 0.35, 1.4): return
 
     # 3 ── Typewriter: status lines type out on the settled scene ─────────────
     phase_typewriter(stdscr, C, ["LINK ESTABLISHED", "INITIATING INTERFACE..."])
