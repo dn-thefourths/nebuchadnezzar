@@ -19,9 +19,10 @@ _matrix_splash() {
   printf '\033]12;#00FF41\007'        # cursor
   printf '\033]0;NEBUCHADNEZZAR\007'  # tab title
 
-  # macOS only: Zarvox robot voice fires async during the rain phase
+  # macOS only: Samantha voice fires after 5s — lands during the banner decode
+  # Alternatives: Moira (Irish), Tessa (South African), Karen (Australian)
   if [[ "$(uname)" == "Darwin" ]]; then
-    say -v Zarvox "Wake up" 2>/dev/null &
+    (sleep 5 && say -v Samantha "Welcome, Chosen One" 2>/dev/null) &
   fi
 
   python3 ~/.config/matrix-splash.py 2>/dev/null || true
