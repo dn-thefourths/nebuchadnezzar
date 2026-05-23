@@ -4,11 +4,12 @@ Nebuchadnezzar terminal splash
 Rain → "Welcome to the Nebuchadnezzar" full-width banner → green prompt flash
 
 Security notes:
-  - stdlib only: curses, random, time, sys
-  - no network, no subprocess, no file I/O, no eval/exec
+  - stdlib only: curses, random, time, sys, subprocess, platform
+  - no network, no pip installs, no file I/O, no eval/exec
+  - subprocess used only to call 'say' (macOS TTS) with a hardcoded string
   - runs as current user; file is 644 under a 750 home directory
 """
-import curses, random, time, sys
+import curses, random, time, sys, subprocess, platform
 
 CHARS = (
     "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ"
@@ -90,10 +91,12 @@ def phase_rain(stdscr, rain, C, duration):
 
 # ── Phase: decode message lines in random cell order ─────────────────────────
 
-def phase_decode(stdscr, rain, C, line_specs, per_char, settle, hold):
+def phase_decode(stdscr, rain, C, line_specs, per_char, settle, hold,
+                 on_hold_start=None):
     """
     line_specs: list of (text, row, start_col)
     All characters across all lines are shuffled into a single decode order.
+    on_hold_start: optional zero-arg callable fired once when the hold phase begins.
     Returns True if user pressed a key to skip.
     """
     cells = []
@@ -105,9 +108,10 @@ def phase_decode(stdscr, rain, C, line_specs, per_char, settle, hold):
     decode_at = {(r, c): i * per_char for i, (r, c, _) in enumerate(cells)}
     char_at   = {(r, c): ch           for (r, c, ch)   in cells}
 
-    total = len(cells) * per_char + settle + hold
-    t0    = time.time()
-    tick  = 0
+    total       = len(cells) * per_char + settle + hold
+    t0          = time.time()
+    tick        = 0
+    hold_fired  = False
 
     while True:
         if stdscr.getch() != -1:
@@ -115,6 +119,12 @@ def phase_decode(stdscr, rain, C, line_specs, per_char, settle, hold):
         t = time.time() - t0
         if t >= total:
             return False
+
+        # Fire callback exactly once when the hold phase begins
+        if not hold_fired and t >= total - hold:
+            hold_fired = True
+            if on_hold_start:
+                on_hold_start()
 
         height, width = stdscr.getmaxyx()
         stdscr.erase()
@@ -259,7 +269,18 @@ def main(stdscr):
         (MESSAGE, row,     s3),
         (border,  row + 1, 1),
     ]
-    if phase_decode(stdscr, rain, C, specs, 0.012, 0.35, 1.4): return
+
+    def voice():
+        """Fire Samantha TTS non-blocking when the banner hold phase begins."""
+        if platform.system() == "Darwin":
+            subprocess.Popen(
+                ["say", "-v", "Samantha", "Welcome, Chosen One"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+
+    # hold=2.5s — voice (~2s) finishes cleanly before typewriter begins
+    if phase_decode(stdscr, rain, C, specs, 0.012, 0.35, 2.5, on_hold_start=voice): return
 
     # 3 ── Typewriter: status lines type out on the settled scene ─────────────
     phase_typewriter(stdscr, C, ["LINK ESTABLISHED", "INITIATING INTERFACE..."])
