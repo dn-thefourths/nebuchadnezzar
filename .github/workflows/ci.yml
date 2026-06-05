@@ -30,9 +30,12 @@ jobs:
           bash -n uninstall.sh
           bash -n bashrc-snippet.bash
           bash -n tests/test_frequency.sh
+          bash -n tests/test_snippets_sync.sh
 
       - name: ShellCheck
-        run: shellcheck install.sh uninstall.sh bashrc-snippet.bash tests/test_frequency.sh
+        run: shellcheck install.sh uninstall.sh bashrc-snippet.bash tests/test_frequency.sh tests/test_snippets_sync.sh
 
       - name: Bash tests
-        run: bash tests/test_frequency.sh
+        run: |
+          bash tests/test_frequency.sh
+          bash tests/test_snippets_sync.sh

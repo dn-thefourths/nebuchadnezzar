@@ -13,16 +13,16 @@ MATRIX_LAUNCH=""
 #   MATRIX_FREQUENCY="daily"          # "always" (default) or "daily" = once per calendar day
 #   MATRIX_MESSAGE="Wake up, Neo"     # banner text (default: Welcome to the Nebuchadnezzar)
 #   MATRIX_TICK="0.03"                # frame time in seconds; lower = faster (default 0.04)
-MATRIX_FREQUENCY="always"
-MATRIX_MESSAGE=""
-MATRIX_TICK=""
+MATRIX_FREQUENCY="${MATRIX_FREQUENCY:-always}"
+MATRIX_MESSAGE="${MATRIX_MESSAGE:-}"
+MATRIX_TICK="${MATRIX_TICK:-}"
 
 _matrix_should_play() {
   [[ "${MATRIX_FREQUENCY:-always}" != "daily" ]] && return 0
   local stamp="${XDG_CACHE_HOME:-$HOME/.cache}/nebuchadnezzar-last"
   local today; today=$(date +%Y%m%d)
-  [[ -f "$stamp" && "$(cat "$stamp" 2>/dev/null)" == "$today" ]] && return 1
-  mkdir -p "$(dirname "$stamp")" 2>/dev/null
+  [[ -f "$stamp" && "$(<"$stamp")" == "$today" ]] && return 1
+  mkdir -p "${stamp%/*}" 2>/dev/null
   printf '%s' "$today" > "$stamp" 2>/dev/null
   return 0
 }

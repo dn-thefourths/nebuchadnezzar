@@ -34,15 +34,23 @@ fi
 strip_block() {
   local rc="$1"
   local tmp; tmp=$(mktemp)
-  awk '
+  # The END guard makes awk exit non-zero if it entered the block (state 1) but
+  # never found the closing rule — without it, a manually-truncated block would
+  # be deleted all the way to EOF, taking unrelated rc content with it.
+  if awk '
     state==0 && /Nebuchadnezzar Matrix splash/ { state=1; next }  # drop opening marker line
     state==1 && /^# ─/                          { state=2; next }  # drop closing rule line, stop
     state==1                                    { next }           # drop block body
     { print }
-  ' "$rc" > "$tmp"
-  cp "$rc" "$rc.nebu.bak"
-  mv "$tmp" "$rc"
-  success "Removed snippet from $rc (backup: $rc.nebu.bak)"
+    END { if (state==1) exit 3 }
+  ' "$rc" > "$tmp"; then
+    cp "$rc" "$rc.nebu.bak"
+    mv "$tmp" "$rc"
+    success "Removed snippet from $rc (backup: $rc.nebu.bak)"
+  else
+    rm -f "$tmp"
+    warn "Block in $rc has no closing rule line — left unchanged. Remove it by hand."
+  fi
 }
 
 stripped=0

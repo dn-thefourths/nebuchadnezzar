@@ -4,23 +4,31 @@ Nebuchadnezzar terminal splash
 Rain → "Welcome to the Nebuchadnezzar" full-width banner → green prompt flash
 
 Security notes:
-  - stdlib only: curses, os, random, time, sys
+  - stdlib only: curses, math, os, random, time, sys
   - no network, no pip installs, no file I/O, no eval/exec, no subprocess
   - os is used only to read optional MATRIX_* config from the environment
   - runs as current user; file is 644 under a 750 home directory
 """
-import curses, os, random, sys, time
+import curses, math, os, random, sys, time
 
 CHARS = (
     "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ"
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 )
-def _env_float(name, default):
-    """Read a float from the environment, falling back on missing/invalid values."""
+def _env_float(name, default, minimum=0.0):
+    """Read a positive, finite float from the environment.
+
+    Falls back to ``default`` for missing, non-numeric, non-finite (inf/nan),
+    or out-of-range values, so a stray MATRIX_TICK can't hang the splash
+    (``time.sleep(inf)``) or crash it (``time.sleep(-1)``).
+    """
     try:
-        return float(os.environ[name])
+        value = float(os.environ[name])
     except (KeyError, ValueError):
         return default
+    if not math.isfinite(value) or value < minimum:
+        return default
+    return value
 
 # Both are overridable via the environment (see the shell snippet).
 TICK    = _env_float("MATRIX_TICK", 0.04)   # seconds per frame (~25 fps)

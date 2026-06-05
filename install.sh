@@ -70,8 +70,10 @@ fi
 
 # Set MATRIX_LAUNCH on the actual assignment line — anchored to line start so
 # the commented example lines (which begin with "#") are left untouched.
-SNIPPET=$(printf '%s\n' "$SNIPPET" | awk -v cmd="$LAUNCH_CMD" '
-  !done && /^MATRIX_LAUNCH=/ { print "MATRIX_LAUNCH=\"" cmd "\""; done=1; next }
+# Pass the command via ENVIRON (not -v) so awk does not interpret backslash
+# escapes in it (e.g. a path containing "\t").
+SNIPPET=$(printf '%s\n' "$SNIPPET" | LAUNCH_CMD="$LAUNCH_CMD" awk '
+  !done && /^MATRIX_LAUNCH=/ { print "MATRIX_LAUNCH=\"" ENVIRON["LAUNCH_CMD"] "\""; done=1; next }
   { print }
 ')
 
