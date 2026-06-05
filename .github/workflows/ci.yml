@@ -22,7 +22,9 @@ jobs:
         run: pipx run ruff check matrix-splash.py
 
       - name: Check bash syntax
-        run: bash -n install.sh
+        run: |
+          bash -n install.sh
+          bash -n bashrc-snippet.bash
 
       - name: ShellCheck
-        run: shellcheck install.sh
+        run: shellcheck install.sh bashrc-snippet.bash

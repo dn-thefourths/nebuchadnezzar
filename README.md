@@ -13,7 +13,7 @@ Matrix-style terminal splash screen. Every new terminal window plays a full sequ
 ## Requirements
 
 - Python 3.8+ (stdlib only — no pip installs)
-- zsh (or bash with minor adaptation)
+- zsh or bash
 - macOS or Linux
 
 ## Install
@@ -26,7 +26,7 @@ bash install.sh
 
 The installer:
 - Copies `matrix-splash.py` to `~/.config/`
-- Appends the zsh snippet to `~/.zshrc`
+- Detects your shell and appends the matching snippet to `~/.zshrc` or `~/.bashrc`
 - Asks what command to auto-launch after the splash (leave blank for none)
 - Optionally patches Terminal.app profiles to 14pt font (macOS only)
 
@@ -36,7 +36,8 @@ Open a new terminal to see it. Press any key during the sequence to skip it.
 
 ```bash
 cp matrix-splash.py ~/.config/
-cat zshrc-snippet.zsh >> ~/.zshrc
+cat zshrc-snippet.zsh >> ~/.zshrc      # zsh
+cat bashrc-snippet.bash >> ~/.bashrc   # bash
 ```
 
 Then set `MATRIX_LAUNCH` at the top of the appended snippet to whatever you want launched after the splash (e.g. `claude`, `zsh`, or leave it empty).
@@ -68,6 +69,7 @@ In `main()`:
 ```
 matrix-splash.py      # the curses splash script
 zshrc-snippet.zsh     # drop-in .zshrc addition
+bashrc-snippet.bash   # drop-in .bashrc addition
 install.sh            # guided installer
 README.md
 ```

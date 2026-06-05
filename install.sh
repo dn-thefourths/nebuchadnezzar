@@ -36,13 +36,13 @@ success "Copied matrix-splash.py → ~/.config/matrix-splash.py"
 # ── Determine shell config file ───────────────────────────────────────────
 
 if [[ -f "$HOME/.zshrc" ]]; then
-  RC="$HOME/.zshrc"
+  RC="$HOME/.zshrc"; SHELL_KIND="zsh"
 elif [[ -f "$HOME/.bashrc" ]]; then
-  RC="$HOME/.bashrc"
+  RC="$HOME/.bashrc"; SHELL_KIND="bash"
 else
-  RC="$HOME/.zshrc"
+  RC="$HOME/.zshrc"; SHELL_KIND="zsh"
 fi
-info "Shell config: $RC"
+info "Shell config: $RC ($SHELL_KIND)"
 
 # ── Ask about auto-launch ─────────────────────────────────────────────────
 
@@ -60,9 +60,13 @@ case "$choice" in
   *) LAUNCH_CMD="" ;;
 esac
 
-# ── Patch zshrc-snippet with launch command ──────────────────────────────
+# ── Patch the shell snippet with the launch command ──────────────────────
 
-SNIPPET=$(cat "$(dirname "$0")/zshrc-snippet.zsh")
+if [[ "$SHELL_KIND" == "bash" ]]; then
+  SNIPPET=$(cat "$(dirname "$0")/bashrc-snippet.bash")
+else
+  SNIPPET=$(cat "$(dirname "$0")/zshrc-snippet.zsh")
+fi
 
 # Set MATRIX_LAUNCH on the actual assignment line — anchored to line start so
 # the commented example lines (which begin with "#") are left untouched.
