@@ -88,5 +88,6 @@ zshrc-snippet.zsh     # drop-in .zshrc addition
 bashrc-snippet.bash   # drop-in .bashrc addition
 install.sh            # guided installer
 uninstall.sh          # removes everything install.sh added
+tests/                # dependency-free env-config and throttle tests
 README.md
 ```

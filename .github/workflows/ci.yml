@@ -19,13 +19,20 @@ jobs:
         run: python3 -m py_compile matrix-splash.py
 
       - name: Ruff lint
-        run: pipx run ruff check matrix-splash.py
+        run: pipx run ruff check .
+
+      - name: Python tests
+        run: python3 tests/test_env_config.py
 
       - name: Check bash syntax
         run: |
           bash -n install.sh
           bash -n uninstall.sh
           bash -n bashrc-snippet.bash
+          bash -n tests/test_frequency.sh
 
       - name: ShellCheck
-        run: shellcheck install.sh uninstall.sh bashrc-snippet.bash
+        run: shellcheck install.sh uninstall.sh bashrc-snippet.bash tests/test_frequency.sh
+
+      - name: Bash tests
+        run: bash tests/test_frequency.sh
