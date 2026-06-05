@@ -4,18 +4,35 @@ Nebuchadnezzar terminal splash
 Rain → "Welcome to the Nebuchadnezzar" full-width banner → green prompt flash
 
 Security notes:
-  - stdlib only: curses, random, time, sys
+  - stdlib only: curses, math, os, random, time, sys
   - no network, no pip installs, no file I/O, no eval/exec, no subprocess
+  - os is used only to read optional MATRIX_* config from the environment
   - runs as current user; file is 644 under a 750 home directory
 """
-import curses, random, time, sys
+import curses, math, os, random, sys, time
 
 CHARS = (
     "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ"
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 )
-TICK    = 0.04   # seconds per frame (~25 fps)
-MESSAGE = "Welcome to the Nebuchadnezzar"
+def _env_float(name, default, minimum=0.0):
+    """Read a positive, finite float from the environment.
+
+    Falls back to ``default`` for missing, non-numeric, non-finite (inf/nan),
+    or out-of-range values, so a stray MATRIX_TICK can't hang the splash
+    (``time.sleep(inf)``) or crash it (``time.sleep(-1)``).
+    """
+    try:
+        value = float(os.environ[name])
+    except (KeyError, ValueError):
+        return default
+    if not math.isfinite(value) or value < minimum:
+        return default
+    return value
+
+# Both are overridable via the environment (see the shell snippet).
+TICK    = _env_float("MATRIX_TICK", 0.04)   # seconds per frame (~25 fps)
+MESSAGE = os.environ.get("MATRIX_MESSAGE") or "Welcome to the Nebuchadnezzar"
 
 
 # ── Rain ──────────────────────────────────────────────────────────────────────
@@ -230,9 +247,10 @@ def main(stdscr):
     curses.start_color()
     curses.use_default_colors()
 
-    # Shift the terminal's green slot toward Matrix #00FF41 where supported
+    # Remap the terminal's green slot to exactly Matrix #00FF41 where supported
+    # (#00FF41 → R 0, G 255, B 65, scaled to the 0–1000 range curses expects)
     if curses.can_change_color():
-        curses.init_color(curses.COLOR_GREEN, 0, 880, 255)
+        curses.init_color(curses.COLOR_GREEN, 0, 1000, 255)
 
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)   # rain body
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)   # rain head / bright

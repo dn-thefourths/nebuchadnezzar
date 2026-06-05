@@ -4,7 +4,7 @@
 # Leave empty for a plain shell prompt.
 #
 #   MATRIX_LAUNCH="claude"   # launch Claude Code
-#   MATRIX_LAUNCH="zsh"      # just drop into zsh
+#   MATRIX_LAUNCH="bash"     # just drop into bash
 #   MATRIX_LAUNCH=""         # do nothing (default)
 #
 MATRIX_LAUNCH=""
@@ -48,6 +48,5 @@ _matrix_splash() {
 _matrix_splash
 
 # Green prompt
-autoload -U colors && colors
-PROMPT='%F{green}%~%f %F{082}❯%f '
+PS1='\[\e[0;32m\]\w\[\e[1;32m\] ❯\[\e[0m\] '
 # ─────────────────────────────────────────────────────────────────────────────

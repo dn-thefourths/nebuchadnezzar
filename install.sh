@@ -20,11 +20,10 @@ python3 --version &>/dev/null || error "python3 not found. Install it and re-run
 success "python3 found: $(python3 --version)"
 
 if [[ "$(uname)" == "Darwin" ]]; then
-  HAS_SAY=true
-  success "macOS detected — Zarvox voice will be enabled"
+  IS_MACOS=true
+  success "macOS detected"
 else
-  HAS_SAY=false
-  info "Non-macOS — voice effect will be skipped"
+  IS_MACOS=false
 fi
 
 # ── Copy script ───────────────────────────────────────────────────────────
@@ -37,13 +36,13 @@ success "Copied matrix-splash.py → ~/.config/matrix-splash.py"
 # ── Determine shell config file ───────────────────────────────────────────
 
 if [[ -f "$HOME/.zshrc" ]]; then
-  RC="$HOME/.zshrc"
+  RC="$HOME/.zshrc"; SHELL_KIND="zsh"
 elif [[ -f "$HOME/.bashrc" ]]; then
-  RC="$HOME/.bashrc"
+  RC="$HOME/.bashrc"; SHELL_KIND="bash"
 else
-  RC="$HOME/.zshrc"
+  RC="$HOME/.zshrc"; SHELL_KIND="zsh"
 fi
-info "Shell config: $RC"
+info "Shell config: $RC ($SHELL_KIND)"
 
 # ── Ask about auto-launch ─────────────────────────────────────────────────
 
@@ -61,18 +60,22 @@ case "$choice" in
   *) LAUNCH_CMD="" ;;
 esac
 
-# ── Patch zshrc-snippet with voice and launch settings ───────────────────
+# ── Patch the shell snippet with the launch command ──────────────────────
 
-SNIPPET=$(cat "$(dirname "$0")/zshrc-snippet.zsh")
-
-# Set MATRIX_LAUNCH
-SNIPPET="${SNIPPET/MATRIX_LAUNCH=\"\"/MATRIX_LAUNCH=\"${LAUNCH_CMD}\"}"
-
-# Remove macOS say block if not on macOS
-if [[ "$HAS_SAY" == "false" ]]; then
-  # Strip the say block (3 lines)
-  SNIPPET=$(echo "$SNIPPET" | grep -v 'macOS only\|uname\|say -v\|fi$' || true)
+if [[ "$SHELL_KIND" == "bash" ]]; then
+  SNIPPET=$(cat "$(dirname "$0")/bashrc-snippet.bash")
+else
+  SNIPPET=$(cat "$(dirname "$0")/zshrc-snippet.zsh")
 fi
+
+# Set MATRIX_LAUNCH on the actual assignment line — anchored to line start so
+# the commented example lines (which begin with "#") are left untouched.
+# Pass the command via ENVIRON (not -v) so awk does not interpret backslash
+# escapes in it (e.g. a path containing "\t").
+SNIPPET=$(printf '%s\n' "$SNIPPET" | LAUNCH_CMD="$LAUNCH_CMD" awk '
+  !done && /^MATRIX_LAUNCH=/ { print "MATRIX_LAUNCH=\"" ENVIRON["LAUNCH_CMD"] "\""; done=1; next }
+  { print }
+')
 
 # ── Append to shell config ────────────────────────────────────────────────
 
@@ -88,7 +91,7 @@ fi
 
 # ── Terminal font size (macOS only) ──────────────────────────────────────
 
-if [[ "$HAS_SAY" == "true" ]]; then
+if [[ "$IS_MACOS" == "true" ]]; then
   echo ""
   read -rp "  Patch Terminal.app font to 14pt minimum? [y/N]: " patch_font
   if [[ "$patch_font" =~ ^[Yy]$ ]]; then

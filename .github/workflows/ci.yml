@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Check Python syntax
+        run: python3 -m py_compile matrix-splash.py
+
+      - name: Ruff lint
+        run: pipx run ruff check .
+
+      - name: Python tests
+        run: python3 tests/test_env_config.py
+
+      - name: Check bash syntax
+        run: |
+          bash -n install.sh
+          bash -n uninstall.sh
+          bash -n bashrc-snippet.bash
+          bash -n tests/test_frequency.sh
+          bash -n tests/test_snippets_sync.sh
+
+      - name: ShellCheck
+        run: shellcheck install.sh uninstall.sh bashrc-snippet.bash tests/test_frequency.sh tests/test_snippets_sync.sh
+
+      - name: Bash tests
+        run: |
+          bash tests/test_frequency.sh
+          bash tests/test_snippets_sync.sh
