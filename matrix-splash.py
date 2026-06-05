@@ -239,9 +239,10 @@ def main(stdscr):
     curses.start_color()
     curses.use_default_colors()
 
-    # Shift the terminal's green slot toward Matrix #00FF41 where supported
+    # Remap the terminal's green slot to exactly Matrix #00FF41 where supported
+    # (#00FF41 → R 0, G 255, B 65, scaled to the 0–1000 range curses expects)
     if curses.can_change_color():
-        curses.init_color(curses.COLOR_GREEN, 0, 880, 255)
+        curses.init_color(curses.COLOR_GREEN, 0, 1000, 255)
 
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)   # rain body
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)   # rain head / bright

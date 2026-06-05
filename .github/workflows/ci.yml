@@ -24,7 +24,8 @@ jobs:
       - name: Check bash syntax
         run: |
           bash -n install.sh
+          bash -n uninstall.sh
           bash -n bashrc-snippet.bash
 
       - name: ShellCheck
-        run: shellcheck install.sh bashrc-snippet.bash
+        run: shellcheck install.sh uninstall.sh bashrc-snippet.bash

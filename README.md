@@ -32,6 +32,14 @@ The installer:
 
 Open a new terminal to see it. Press any key during the sequence to skip it.
 
+## Uninstall
+
+```bash
+bash uninstall.sh
+```
+
+Removes `~/.config/matrix-splash.py`, strips the snippet block from `~/.zshrc`/`~/.bashrc` (backing each file up to `*.nebu.bak`), and deletes the daily-frequency stamp. Terminal.app font changes are not reverted.
+
 ## Manual install
 
 ```bash
@@ -79,5 +87,6 @@ matrix-splash.py      # the curses splash script
 zshrc-snippet.zsh     # drop-in .zshrc addition
 bashrc-snippet.bash   # drop-in .bashrc addition
 install.sh            # guided installer
+uninstall.sh          # removes everything install.sh added
 README.md
 ```
