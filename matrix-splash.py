@@ -4,18 +4,27 @@ Nebuchadnezzar terminal splash
 Rain → "Welcome to the Nebuchadnezzar" full-width banner → green prompt flash
 
 Security notes:
-  - stdlib only: curses, random, time, sys
+  - stdlib only: curses, os, random, time, sys
   - no network, no pip installs, no file I/O, no eval/exec, no subprocess
+  - os is used only to read optional MATRIX_* config from the environment
   - runs as current user; file is 644 under a 750 home directory
 """
-import curses, random, time, sys
+import curses, os, random, sys, time
 
 CHARS = (
     "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ"
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 )
-TICK    = 0.04   # seconds per frame (~25 fps)
-MESSAGE = "Welcome to the Nebuchadnezzar"
+def _env_float(name, default):
+    """Read a float from the environment, falling back on missing/invalid values."""
+    try:
+        return float(os.environ[name])
+    except (KeyError, ValueError):
+        return default
+
+# Both are overridable via the environment (see the shell snippet).
+TICK    = _env_float("MATRIX_TICK", 0.04)   # seconds per frame (~25 fps)
+MESSAGE = os.environ.get("MATRIX_MESSAGE") or "Welcome to the Nebuchadnezzar"
 
 
 # ── Rain ──────────────────────────────────────────────────────────────────────
