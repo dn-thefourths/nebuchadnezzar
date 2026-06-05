@@ -19,7 +19,6 @@ _matrix_splash() {
   printf '\033]12;#00FF41\007'        # cursor
   printf '\033]0;NEBUCHADNEZZAR\007'  # tab title
 
-  # Voice ("Welcome, Chosen One") is timed inside matrix-splash.py itself
   python3 ~/.config/matrix-splash.py 2>/dev/null || true
 
   [[ -n "$MATRIX_LAUNCH" ]] && exec "$MATRIX_LAUNCH"

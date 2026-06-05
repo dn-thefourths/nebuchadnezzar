@@ -1,0 +1,10 @@
+# The splash is animation code: it intentionally uses grouped imports and
+# compact one-line `try: ... except curses.error: pass` statements for
+# readability. Lint for real problems (undefined names, unused imports, etc.)
+# rather than these deliberate stylistic choices.
+[lint]
+ignore = [
+    "E401",  # multiple imports on one line
+    "E701",  # multiple statements on one line (colon)
+    "E702",  # multiple statements on one line (semicolon)
+]

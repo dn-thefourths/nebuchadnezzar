@@ -10,8 +10,6 @@ Matrix-style terminal splash screen. Every new terminal window plays a full sequ
 4. Green **`> █`** prompt flashes four times
 5. Launches your configured command (optional) — e.g. `claude`
 
-On macOS, the Zarvox robot voice says *"Wake up"* over the rain.
-
 ## Requirements
 
 - Python 3.8+ (stdlib only — no pip installs)
@@ -21,7 +19,7 @@ On macOS, the Zarvox robot voice says *"Wake up"* over the rain.
 ## Install
 
 ```bash
-git clone https://github.com/your-handle/nebuchadnezzar.git
+git clone https://github.com/dn-thefourths/nebuchadnezzar.git
 cd nebuchadnezzar
 bash install.sh
 ```
